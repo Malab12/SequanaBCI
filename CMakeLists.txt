@@ -5,6 +5,7 @@ include(CTest)
 enable_testing()
 
 add_executable(Sequana src/main.c)
+target_include_directories(Sequana PRIVATE lib/)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
