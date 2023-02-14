@@ -1,9 +1,14 @@
 #include <stdio.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <inttypes.h>
+#include <assert.h>
 
 struct
 {
-    __uint8_t *ip;
-    __uint64_t accumulator;
+    uint8_t *ip;
+    uint64_t accumulator;
 } virtualMachine;
 
 typedef enum
@@ -28,7 +33,7 @@ void vmReset(void)
     virtualMachine = (typeof(virtualMachine)){NULL};
 }
 
-interpretResult vmInterpret(__uint8_t *bytecode)
+interpretResult vmInterpret(uint8_t *bytecode)
 {
     vmReset();
 
@@ -37,7 +42,7 @@ interpretResult vmInterpret(__uint8_t *bytecode)
 
     for (;;)
     {
-        __uint8_t instruction = *virtualMachine.ip++;
+        uint8_t instruction = *virtualMachine.ip++;
 
         switch (instruction)
         {
@@ -64,5 +69,19 @@ interpretResult vmInterpret(__uint8_t *bytecode)
 
 int main()
 {
-    printf("Hello World\n");
+    uint8_t code[] = {OP_INC, OP_INC, OP_DEC, OP_DONE};
+    interpretResult result = vmInterpret(code);
+    printf("vm state: %" PRIu64 "\n", virtualMachine.accumulator);
+
+    assert(result == SUCCESS);
+    assert(virtualMachine.accumulator == 1);
+
+    uint8_t code2[] = {OP_INC, OP_DEC, OP_DEC, OP_DONE};
+    interpretResult result2 = vmInterpret(code2);
+    printf("vm state: %" PRIu64 "\n", virtualMachine.accumulator);
+
+    assert(result2 == SUCCESS);
+    assert(virtualMachine.accumulator == UINT64_MAX);
+
+    return EXIT_SUCCESS;
 }
