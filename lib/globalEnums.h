@@ -18,16 +18,24 @@ typedef enum
     OP_SUBI,
     // push the immediate argument onto the stack
     OP_PUSHI,
-    // pop two values from the stack, add and push the result
+    // load an immediate value into r0
+    OP_LOADI,
+    // Stack: pop two values from the stack, add and push the result
+    // Register: add values in r0, r1 registers and put them in r2
     OP_ADD,
-    // pop two values from the stack, subtract and push the result
+    // Stack: pop two values from the stack, subtract and push the result
+    // Register: subtract values in r0, r1 registers and put them into r2
     OP_SUB,
-    // pop two values from the stack, multiply and push the result
+    // Stack: pop two values from the stack, multiply and push the result
+    // Register: multiply values in ro, r1 registers and put them into r2
     OP_MUL,
-    // pop two values from the stack, divide and push the result
+    // Stack: pop two values from the stack, divide and push the result
+    // Register: divide values in r0, r1 registers and put them into r2
     OP_DIV,
     // pop the top of the stack and set it as execution result
     OP_POP_RES,
+    // Move a value from r0 register into the result register
+    OP_MOV_RES,
     // stop execution
     OP_DONE
 } opCodes;

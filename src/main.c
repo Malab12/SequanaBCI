@@ -5,6 +5,7 @@
 #include <assert.h>
 #include "basicVirtualMachine.h"
 #include "stackVirtualMachine.h"
+#include "registerVirtualMachine.h"
 
 int main()
 {
@@ -114,5 +115,117 @@ int main()
         assert(result == SUCCESS);
         assert(stackVirtualMachine.result == 28);
     }
+
+#define ENCODE_OP(op) \
+    ((op) << 12)
+#define ENCODE_OP_REG(op, reg) \
+    (ENCODE_OP(op) | ((reg) << 8))
+#define ENCODE_OP_REG_IMM(op, reg, imm) \
+    (ENCODE_OP(op) | ((reg) << 8) | (imm))
+#define ENCODE_OP_REGS(op, reg0, reg1, reg2) \
+    (ENCODE_OP(op) | ((reg0) << 8) | ((reg1) << 4) | (reg2))
+
+    {
+        /* Load an immediate value into r4, then MOV it to result  */
+        uint16_t code[] = {
+            ENCODE_OP_REG_IMM(OP_LOADI, 3, 5),
+            ENCODE_OP_REG(OP_MOV_RES, 3),
+            ENCODE_OP(OP_DONE)};
+        interpretResult result = registerVmInterpret(code);
+        printf("vm state: %" PRIu64 "\n", registerVirtualMachine.result);
+
+        assert(result == SUCCESS);
+        assert(registerVirtualMachine.result == 5);
+    }
+
+    {
+        /* Load an immediate values into r3,r2, add the result in r1, then mov to result  */
+        uint16_t code[] = {
+            ENCODE_OP_REG_IMM(OP_LOADI, 3, 5),
+            ENCODE_OP_REG_IMM(OP_LOADI, 2, 10),
+            ENCODE_OP_REGS(OP_ADD, 2, 3, 1),
+
+            ENCODE_OP_REG(OP_MOV_RES, 1),
+            ENCODE_OP(OP_DONE)};
+        interpretResult result = registerVmInterpret(code);
+        printf("vm state: %" PRIu64 "\n", registerVirtualMachine.result);
+
+        assert(result == SUCCESS);
+        assert(registerVirtualMachine.result == 15);
+    }
+
+    {
+        /* Load immediate values into r0,r1, subtract r1 from r0 into r2, then mov to result */
+        uint16_t code[] = {
+            ENCODE_OP_REG_IMM(OP_LOADI, 0, 7),
+            ENCODE_OP_REG_IMM(OP_LOADI, 1, 3),
+            ENCODE_OP_REGS(OP_SUB, 0, 1, 2),
+
+            ENCODE_OP_REG(OP_MOV_RES, 2),
+            ENCODE_OP(OP_DONE)};
+        interpretResult result = registerVmInterpret(code);
+        printf("vm state: %" PRIu64 "\n", registerVirtualMachine.result);
+
+        assert(result == SUCCESS);
+        assert(registerVirtualMachine.result == 4);
+    }
+
+    {
+        /* Load immediate values into r0,r1, divide r1 by r0 into r2, then mov to result  */
+        uint16_t code[] = {
+            ENCODE_OP_REG_IMM(OP_LOADI, 0, 6),
+            ENCODE_OP_REG_IMM(OP_LOADI, 1, 2),
+            ENCODE_OP_REGS(OP_DIV, 0, 1, 2),
+
+            ENCODE_OP_REG(OP_MOV_RES, 2),
+            ENCODE_OP(OP_DONE)};
+        interpretResult result = registerVmInterpret(code);
+        printf("vm state: %" PRIu64 "\n", registerVirtualMachine.result);
+
+        assert(result == SUCCESS);
+        assert(registerVirtualMachine.result == 3);
+    }
+
+    {
+        /* Load immediate values into r0,r1, multiply r1 by r0 into r2, then mov to result  */
+        uint16_t code[] = {
+            ENCODE_OP_REG_IMM(OP_LOADI, 0, 6),
+            ENCODE_OP_REG_IMM(OP_LOADI, 1, 2),
+            ENCODE_OP_REGS(OP_MUL, 0, 1, 2),
+
+            ENCODE_OP_REG(OP_MOV_RES, 2),
+            ENCODE_OP(OP_DONE)};
+        interpretResult result = registerVmInterpret(code);
+        printf("vm state: %" PRIu64 "\n", registerVirtualMachine.result);
+
+        assert(result == SUCCESS);
+        assert(registerVirtualMachine.result == 12);
+    }
+
+    {
+        /* Expression: 2*(11+3) */
+        uint16_t code[] = {
+            ENCODE_OP_REG_IMM(OP_LOADI, 1, 11),
+            ENCODE_OP_REG_IMM(OP_LOADI, 2, 3),
+            ENCODE_OP_REGS(OP_ADD, 1, 2, 3),
+
+            ENCODE_OP_REG_IMM(OP_LOADI, 2, 2),
+            ENCODE_OP_REGS(OP_MUL, 2, 3, 0),
+
+            ENCODE_OP_REG(OP_MOV_RES, 0),
+            ENCODE_OP(OP_DONE)};
+        interpretResult result = registerVmInterpret(code);
+        printf("vm state: %" PRIu64 "\n", registerVirtualMachine.result);
+
+        assert(result == SUCCESS);
+        assert(registerVirtualMachine.result == 28);
+    }
+
+    return EXIT_SUCCESS;
+
+#undef ENCODE_OP
+#undef ENCODE_OP_REG
+#undef ENCODE_OP_REG_IMM
+#undef ENCODE_OP_REGS
     return EXIT_SUCCESS;
 }
