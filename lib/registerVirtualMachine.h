@@ -2,9 +2,6 @@
 #define REG_VM_H
 
 #include "globalEnums.h"
-
-#define REGISTER_NUM 15
-
 struct
 {
     uint16_t *ip;

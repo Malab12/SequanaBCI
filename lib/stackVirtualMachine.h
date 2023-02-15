@@ -2,8 +2,6 @@
 #define STACK_VM_H
 
 #include "globalEnums.h"
-
-#define STACK_MAX 256
 struct
 {
     // Information pointer

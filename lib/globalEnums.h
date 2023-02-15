@@ -6,6 +6,8 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
+#define REGISTER_NUM 15
+#define STACK_MAX 256
 typedef enum
 {
     // Increment the register
@@ -36,6 +38,14 @@ typedef enum
     OP_POP_RES,
     // Move a value from r0 register into the result register
     OP_MOV_RES,
+    // Match a single character to an immediate argument from the string and advance ip and cp, or abort
+    OP_CHAR,
+    // Jump to and match either left expression or the right one, abort if nothing matches
+    OP_OR,
+    // Do an absolute jump to an offset in the immediate argument
+    OP_JUMP,
+    // Stop execution and report a successful match
+    OP_MATCH,
     // stop execution
     OP_DONE
 } opCodes;
@@ -44,7 +54,13 @@ typedef enum
 {
     SUCCESS,
     ERROR_DIVISION_BY_ZERO,
-    ERROR_UNKNOWN_OPCODE
+    ERROR_UNKNOWN_OPCODE,
 } interpretResult;
 
+typedef enum
+{
+    MATCH_OK,
+    MATCH_FAIL,
+    MATCH_ERROR
+} matchResult;
 #endif
